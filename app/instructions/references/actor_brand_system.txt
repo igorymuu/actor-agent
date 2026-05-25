@@ -1,0 +1,85 @@
+ACTOR BRAND SYSTEM
+
+--------------------------------
+
+ACTOR BRAND ELEMENTS
+
+An actor brand consists of:
+
+archetype  
+energy  
+casting niche  
+visual identity  
+public persona  
+
+--------------------------------
+
+ACTOR POSITIONING
+
+Actors must occupy a clear position in casting perception.
+
+Example:
+
+Primary position:
+young detective
+
+Secondary position:
+intellectual professional
+
+--------------------------------
+
+ACTOR IMAGE CONSISTENCY
+
+Casting prefers actors with a consistent visual image.
+
+Key elements:
+
+hair  
+style  
+facial expression  
+photo style  
+
+--------------------------------
+
+SOCIAL MEDIA BRANDING
+
+Actors must maintain visual recognizability.
+
+Recommended content mix:
+
+40% acting
+40% personality
+20% industry
+
+--------------------------------
+
+ACTOR PROFILE STRUCTURE
+
+Professional profile should include:
+
+name  
+city  
+age range  
+height  
+type  
+experience  
+skills  
+showreel  
+
+--------------------------------
+
+ELEVATOR PITCH STRUCTURE
+
+Short introduction:
+
+who you are  
+what roles you play  
+what makes you unique  
+
+Example:
+
+I am an actor with an intellectual professional type.
+I often play detectives, analysts and doctors.
+My strength is calm intensity and realism.
+
+--------------------------------

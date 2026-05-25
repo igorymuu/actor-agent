@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Acting Agent</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <script src="/static/scanner-v2.js"></script>
+    <style>
+        :root {
+            --bg: #0d1117;
+            --card: #161b22;
+            --border: #30363d;
+            --accent: #58a6ff;
+            --green: #3fb950;
+            --text: #c9d1d9;
+            --text-muted: #8b949e;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
+
+        h1 { font-size: 2rem; margin-bottom: 8px; }
+        p.subtitle { color: var(--text-muted); margin-bottom: 32px; }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .card h2 { font-size: 1.3rem; margin-bottom: 16px; }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px 14px;
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+        input:focus, textarea:focus { outline: none; border-color: var(--accent); }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-primary { background: var(--accent); color: #fff; }
+        .btn-primary:hover { background: #79c0ff; }
+        .btn-secondary { background: var(--border); color: var(--text); }
+        .btn-secondary:hover { background: #3d444d; }
+        .btn-success { background: var(--green); color: #fff; }
+
+        .tabs { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+        .tab {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            color: var(--text-muted);
+            background: transparent;
+        }
+        .tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+        .hidden { display: none !important; }
+
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            background: #1f2937;
+            color: var(--accent);
+            margin: 2px 4px 2px 0;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .task-item:last-child { border-bottom: none; }
+        .task-item.done .task-text { text-decoration: line-through; color: var(--text-muted); }
+        .task-item input[type="checkbox"] { width: 18px; height: 18px; }
+
+        .strategy-card {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+        .strategy-card h3 { color: var(--accent); margin-bottom: 12px; }
+        .strategy-card ul { list-style: none; }
+        .strategy-card li { padding: 4px 0; color: var(--text-muted); }
+        .strategy-card li::before { content: "→ "; color: var(--green); }
+
+        .profile-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .profile-section .full { grid-column: 1 / -1; }
+
+        .toggle-link { color: var(--accent); cursor: pointer; font-size: 13px; margin-top: 8px; display: inline-block; }
+
+        .strengths { color: var(--green); }
+        .weaknesses { color: #f85149; }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        .alert-error { background: rgba(248,81,73,0.1); border: 1px solid #f85149; color: #f85149; }
+        .alert-success { background: rgba(63,185,80,0.1); border: 1px solid var(--green); color: var(--green); }
+
+        @media (max-width: 600px) {
+            .profile-section { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="app">
+        <h1>🎭 AI Acting Agent</h1>
+        <p class="subtitle">Цифровой актерский агент — анализ, стратегия, сопровождение</p>
+
+        <!-- Auth Section -->
+        <div id="auth-view">
+            <div class="card">
+                <h2>Вход / Регистрация</h2>
+                <div class="alert hidden" id="auth-alert"></div>
+                <input type="email" id="auth-email" placeholder="Email">
+                <input type="password" id="auth-password" placeholder="Пароль">
+                <input type="text" id="auth-name" placeholder="Имя (для регистрации)" class="hidden">
+                <div style="display:flex; gap:8px; margin-top:8px;">
+                    <button class="btn-primary" onclick="login()">Войти</button>
+                    <button class="btn-secondary" onclick="toggleRegisterForm()">Регистрация</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard-view" class="hidden">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:8px;">
+                <div>
+                    <strong id="user-name">Пользователь</strong>
+                    <span class="badge" id="user-tier">free</span>
+                </div>
+                <button class="btn-secondary" onclick="logout()">Выйти</button>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('profile', this)">📋 Профиль</button>
+                <button class="tab" onclick="switchTab('analysis', this)">🔍 Анализ</button>
+                <button class="tab" onclick="switchTab('strategy', this)">📈 Стратегия</button>
+                <button class="tab" onclick="switchTab('tasks', this)">✅ Задачи</button>
+                <button class="tab" onclick="switchTab('chat', this)">💬 Чат</button>
+            </div>
+
+            <!-- Profile Tab -->
+            <div id="tab-profile" class="card">
+                <h2>Профиль актера</h2>
+                <div id="profile-empty">
+                    <p style="color: var(--text-muted);">Профиль не заполнен. Загрузите фото для анализа.</p>
+                </div>
+                <div id="profile-data" class="hidden">
+                    <div class="profile-section">
+                        <div><strong>Типаж:</strong> <span id="p-type">—</span></div>
+                        <div><strong>Возраст:</strong> <span id="p-age">—</span></div>
+                        <div class="full"><strong>Архетип:</strong> <span id="p-archetype">—</span></div>
+                        <div class="full"><strong>Сильные стороны:</strong> <div id="p-strengths"></div></div>
+                        <div class="full"><strong>Слабые стороны:</strong> <div id="p-weaknesses"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Tab -->
+            <div id="tab-analysis" class="card hidden">
+                <h2>Анализ фото</h2>
+                <p style="color: var(--text-muted); margin-bottom:16px;">Загрузите фото для определения типажа, архетипов и сильных сторон.</p>
+                <input type="file" id="photo-input" accept="image/*">
+                <div id="analysis-result" class="hidden" style="margin-top:16px;"></div>
+                <button class="btn-primary" onclick="analyzePhoto()" id="analyze-btn">Анализировать</button>
+            </div>
+
+            <!-- Strategy Tab -->
+            <div id="tab-strategy" class="card hidden">
+                <h2>Стратегия развития</h2>
+                <div style="display:flex; gap:8px; margin-bottom:16px;">
+                    <button class="btn-primary" onclick="generateStrategy(30)">30 дней</button>
+                    <button class="btn-secondary" onclick="generateStrategy(60)">60 дней</button>
+                    <button class="btn-secondary" onclick="generateStrategy(90)">90 дней</button>
+                </div>
+                <div id="strategy-content"></div>
+            </div>
+
+            <!-- Tasks Tab -->
+            <div id="tab-tasks" class="card hidden">
+                <h2>Задачи</h2>
+                <div style="display:flex; gap:8px; margin-bottom:16px;">
+                    <input type="text" id="task-input" placeholder="Новая задача..." style="margin-bottom:0;">
+                    <button class="btn-primary" onclick="createTask()">Добавить</button>
+                </div>
+                <div id="tasks-list"></div>
+            </div>
+
+            <!-- Chat Tab -->
+            <div id="tab-chat" class="card hidden">
+                <h2>AI-ассистент</h2>
+                <div id="chat-messages" style="max-height:300px; overflow-y:auto; margin-bottom:12px; padding:8px; background:#0d1117; border-radius:8px;"></div>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="chat-input" placeholder="Спроси совет..." style="margin-bottom:0;">
+                    <button class="btn-primary" onclick="sendChat()">→</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API = window.location.origin + '/api';
+
+        // --- Auth ---
+        let token = localStorage.getItem('token');
+        if (token) showDashboard();
+
+        function showAlert(msg, type, container) {
+            const el = document.getElementById(container || 'auth-alert');
+            el.textContent = msg;
+            el.className = 'alert alert-' + type;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 5000);
+        }
+
+        let showRegister = false;
+        function toggleRegisterForm() {
+            showRegister = !showRegister;
+            document.getElementById('auth-name').classList.toggle('hidden', !showRegister);
+        }
+
+        async function login() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            if (!email || !password) return showAlert('Заполните email и пароль', 'error');
+
+            const name = document.getElementById('auth-name').value;
+            const endpoint = showRegister ? '/auth/register' : '/auth/login';
+            const body = showRegister ? { email, password, name } : { email, password };
+
+            try {
+                const res = await fetch(API + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                const data = await res.json();
+                if (!res.ok) return showAlert(data.detail || 'Ошибка', 'error');
+
+                token = data.access_token;
+                localStorage.setItem('token', token);
+                showDashboard();
+            } catch (e) {
+                showAlert('Ошибка соединения', 'error');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            token = null;
+            document.getElementById('auth-view').classList.remove('hidden');
+            document.getElementById('dashboard-view').classList.add('hidden');
+        }
+
+        // --- Dashboard ---
+        async function showDashboard() {
+            document.getElementById('auth-view').classList.add('hidden');
+            document.getElementById('dashboard-view').classList.remove('hidden');
+            loadUser();
+            loadProfile();
+        }
+
+        async function api(path, opts = {}) {
+            const res = await fetch(API + path, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token,
+                    ...opts.headers
+                },
+                ...opts
+            });
+            if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
+            return res;
+        }
+
+        async function loadUser() {
+            try {
+                const res = await api('/auth/me');
+                const user = await res.json();
+                document.getElementById('user-name').textContent = user.name || user.email;
+                document.getElementById('user-tier').textContent = user.subscription_tier;
+            } catch(e) {}
+        }
+
+        async function loadProfile() {
+            try {
+                const res = await api('/profile/');
+                if (res.status === 404) return;
+                const p = await res.json();
+                document.getElementById('profile-empty').classList.add('hidden');
+                document.getElementById('profile-data').classList.remove('hidden');
+                document.getElementById('p-type').textContent = p.actor_type || '—';
+                document.getElementById('p-age').textContent = p.age_range || '—';
+                document.getElementById('p-archetype').textContent = p.archetype || '—';
+                document.getElementById('p-strengths').innerHTML = (p.strengths || []).map(s => `<span class="badge strengths">${s}</span>`).join('');
+                document.getElementById('p-weaknesses').innerHTML = (p.weaknesses || []).map(s => `<span class="badge weaknesses">${s}</span>`).join('');
+            } catch(e) {}
+        }
+
+        // --- Tabs ---
+        function switchTab(name, btn) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+            ['profile','analysis','strategy','tasks','chat'].forEach(t => {
+                document.getElementById('tab-' + t).classList.toggle('hidden', t !== name);
+            });
+            if (name === 'strategy') loadStrategy();
+            if (name === 'tasks') loadTasks();
+        }
+
+        // --- Analysis ---
+        async function analyzePhoto() {
+            const fileInput = document.getElementById('photo-input');
+            if (!fileInput.files[0]) return showAlert('Выберите фото', 'error', 'auth-alert');
+
+            const btn = document.getElementById('analyze-btn');
+            btn.disabled = true;
+            btn.textContent = 'Загружаем...';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            // Загружаем фото на сервер
+            let uploadOk = false;
+            try {
+                const res = await fetch(API + '/profile/analyze-photo', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    body: formData
+                });
+                if (!res.ok) {
+                    showAlert('Ошибка загрузки фото', 'error', 'auth-alert');
+                    btn.disabled = false;
+                    btn.textContent = 'Анализировать';
+                    return;
+                }
+                uploadOk = true;
+            } catch(e) {
+                showAlert('Ошибка загрузки фото', 'error', 'auth-alert');
+                btn.disabled = false;
+                btn.textContent = 'Анализировать';
+                return;
+            }
+
+            // Запускаем AI-сканер
+            runAIFaceScanner((result) => {
+                // Результат готов
+                document.getElementById('analysis-result').classList.remove('hidden');
+                document.getElementById('analysis-result').innerHTML = `
+                    <div class="strategy-card">
+                        <h3>🎭 Результат анализа</h3>
+                        <p><strong>Архетип:</strong> ${result.archetype}</p>
+                        <p><strong>Совпадение:</strong> ${result.match}%</p>
+                    </div>
+                `;
+                loadProfile();
+
+                // Закрываем сканер
+                const overlay = document.getElementById('ai-scanner-overlay');
+                if (overlay) {
+                    overlay.style.transition = 'opacity 0.3s';
+                    overlay.style.opacity = '0';
+                    setTimeout(() => overlay.remove(), 300);
+                }
+
+                btn.disabled = false;
+                btn.textContent = 'Анализировать';
+            });
+        }
+
+        // --- Strategy ---
+        async function generateStrategy(days) {
+            try {
+                const res = await api('/strategy/generate?period_days=' + days, { method: 'POST' });
+                const data = await res.json();
+                loadStrategy();
+            } catch(e) {}
+        }
+
+        async function loadStrategy() {
+            const el = document.getElementById('strategy-content');
+            try {
+                const res = await api('/strategy/');
+                if (res.status === 404) {
+                    el.innerHTML = '<p style="color:var(--text-muted)">Стратегия не создана. Нажмите 30/60/90 дней для генерации.</p>';
+                    return;
+                }
+                const s = await res.json();
+                const c = s.content;
+                let html = `<div class="strategy-card"><h3>📈 Стратегия на ${c.period_days} дней</h3>`;
+                if (c.daily_routine) {
+                    html += `<p style="margin-top:8px;"><strong>Ежедневная рутина:</strong></p><ul>${c.daily_routine.map(r => `<li>${r}</li>`).join('')}</ul>`;
+                }
+                if (c.goals) {
+                    html += `<p style="margin-top:8px;"><strong>Цели:</strong></p><ul>${c.goals.map(g => `<li>${g.done ? '✅' : '⬜'} Неделя ${g.week}: ${g.title}</li>`).join('')}</ul>`;
+                }
+                if (c.recommendations) {
+                    html += `<p style="margin-top:8px;"><strong>Рекомендации:</strong></p><ul>${c.recommendations.map(r => `<li>${r}</li>`).join('')}</ul>`;
+                }
+                html += '</div>';
+                el.innerHTML = html;
+            } catch(e) {
+                el.innerHTML = '<p style="color:var(--text-muted)">Ошибка загрузки стратегии</p>';
+            }
+        }
+
+        // --- Tasks ---
+        async function createTask() {
+            const input = document.getElementById('task-input');
+            if (!input.value) return;
+            try {
+                await api('/tasks/', {
+                    method: 'POST',
+                    body: JSON.stringify({ title: input.value, task_type: 'development' })
+                });
+                input.value = '';
+                loadTasks();
+            } catch(e) {}
+        }
+
+        async function loadTasks() {
+            const el = document.getElementById('tasks-list');
+            try {
+                const res = await api('/tasks/');
+                const tasks = await res.json();
+                if (tasks.length === 0) {
+                    el.innerHTML = '<p style="color:var(--text-muted)">Задач пока нет</p>';
+                    return;
+                }
+                el.innerHTML = tasks.map(t => `
+                    <div class="task-item ${t.is_completed ? 'done' : ''}">
+                        <input type="checkbox" ${t.is_completed ? 'checked' : ''} onchange="completeTask('${t.id}')">
+                        <span class="task-text">${t.title}</span>
+                        <span style="margin-left:auto; font-size:12px; color:var(--text-muted)">${t.task_type}</span>
+                    </div>
+                `).join('');
+            } catch(e) {
+                el.innerHTML = '<p style="color:var(--text-muted)">Ошибка загрузки задач</p>';
+            }
+        }
+
+        async function completeTask(id) {
+            try {
+                await api('/tasks/' + id + '/complete', { method: 'PATCH' });
+                loadTasks();
+            } catch(e) {}
+        }
+
+        // --- Chat ---
+        async function sendChat() {
+            const input = document.getElementById('chat-input');
+            const msg = input.value;
+            if (!msg) return;
+            input.value = '';
+
+            const messagesEl = document.getElementById('chat-messages');
+            messagesEl.innerHTML += `<div style="margin-bottom:8px; color: var(--accent);"><strong>Вы:</strong> ${msg}</div>`;
+
+            try {
+                const res = await api('/chat/', {
+                    method: 'POST',
+                    body: JSON.stringify({ message: msg })
+                });
+                const data = await res.json();
+                messagesEl.innerHTML += `<div style="margin-bottom:12px; padding:8px; background:var(--card); border-radius:8px;"><strong>🤖 Агент:</strong> ${data.reply}</div>`;
+                messagesEl.scrollTop = messagesEl.scrollHeight;
+            } catch(e) {
+                messagesEl.innerHTML += `<div style="color:#f85149;">Ошибка связи с агентом</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
